@@ -103,7 +103,7 @@ mkdir -p queries references
         <tests>
                 <test>
                         <param name="source_select" value="history" />
-                        <param name="reference" value="assemblies/Sample_A.fasta" ftype="fasta" />
+                        <param name="reference" value="assemblies/Sample_A.fasta" />
                         <param name="query_select" value="assemblies" />
                         <param name="coll">
                                 <collection type="list">
