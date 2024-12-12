@@ -1,4 +1,4 @@
-<tool id="csp2-screen" name="CSP2 (Screening Mode)" version="0.9.7_Dev21">
+<tool id="csp2-screen" name="CSP2 (Screening Mode)" version="0.9.7_Dev21" profile="23.0">
         <description>Screen query assemblies against reference assemblies</description>
         <requirements>
                 <requirement type="package" version="24.10.1">nextflow</requirement>
@@ -6,41 +6,40 @@
         </requirements>
         <version_command>nextflow -version</version_command>
         <command detect_errors="aggressive"><![CDATA[
-export CSP2_DIR=\$PWD;
-mkdir -p \$CSP2_DIR/queries \$CSP2_DIR/references;
+mkdir -p ./queries ./references &&
 
 if [ -n "$query_fasta" ] && [ "$query_fasta" != "None" ]; then
         #for query in $query_fasta:
-                        ln -sf ${query} \$CSP2_DIR/queries/${query.element_identifier};
+                ln -sf '${query}' './queries/${query.element_identifier}' &&
         #end for
-        export QUERY_FASTA_ARG="--fasta \$CSP2_DIR/queries";
+        export QUERY_FASTA_ARG="--fasta ./queries" &&
 else
-        export QUERY_FASTA_ARG="";
+        export QUERY_FASTA_ARG="" &&
 fi;
 
 if [ -n "$query_reads" ] && [ "$query_reads" != "None" ]; then
         #for query in $query_reads:
-                ln -sf ${query} \$CSP2_DIR/queries/${query.element_identifier};
+                ln -sf ${query} ./queries/${query.element_identifier};
         #end for
-        export QUERY_READS_ARG="--reads \$CSP2_DIR/queries";
+        export QUERY_READS_ARG="--reads ./queries";
 else
         export QUERY_READS_ARG="";
 fi;
 
 if [ -n "$ref_fasta" ] && [ "$ref_fasta" != "None" ]; then
         #for ref in $ref_fasta:
-                ln -sf ${ref} \$CSP2_DIR/references/${ref.element_identifier};
+                ln -sf '${ref}' './references/${ref.element_identifier}' &&
         #end for
-        export REF_FASTA_ARG="--ref_fasta \$CSP2_DIR/references";
+        export REF_FASTA_ARG="--ref_fasta ./references" &&
 else
         export REF_FASTA_ARG="";
 fi;
 
 if [ -n "$ref_reads" ] && [ "$ref_reads" != "None" ]; then
         #for ref in $ref_reads:
-                ln -sf ${ref} \$CSP2_DIR/references/${ref.element_identifier};
+                ln -sf '${ref}' './references/${ref.element_identifier}' &&
         #end for
-        export REF_READS_ARG="--ref_reads \$CSP2_DIR/references";
+        export REF_READS_ARG="--ref_reads ./references" &&
 else
         export REF_READS_ARG="";
 fi;
