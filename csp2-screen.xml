@@ -58,6 +58,28 @@ fi;
 
 nextflow run ${__tool_directory__}/CSP2/CSP2.nf -profile csp2_galaxy --runmode screen \$QUERY_FASTA_ARG \$REF_FASTA_ARG \$QUERY_READS_ARG \$REF_READS_ARG \$REF_ID_ARG \$TRIM_ARG --readext $readext --forward $forward --reverse $reverse --ref_readext $readext --ref_forward $forward --ref_reverse $reverse --min_cov $min_cov --min_iden $min_iden --min_len $min_len --ref_edge $ref_edge --query_edge $query_edge --dwin $dwin --wsnps $wsnps --out \$CSP2_DIR/CSP2_Screen_Output > Nextflow_Log.txt 2>&1;
 sleep 15;
+
+nextflow run '${__tool_directory__}/CSP2/CSP2.nf'
+    -profile csp2_galaxy
+    --runmode screen 
+    \$QUERY_FASTA_ARG
+
+    #if $query_fasta:
+        #for query in $query_fasta:
+                ln -sf '${query}' './queries/${query.element_identifier}' &&
+        #end for
+        --fasta ./queries
+    #end if
+    #if $ref_fasta:
+        #for ref in $ref_fasta:
+            ln -sf '${ref}' './references/${ref.element_identifier}' &&
+        #end for
+        --ref_fasta ./references"
+    #end if
+    ... and so on ...
+            \$QUERY_READS_ARG \$REF_READS_ARG \$REF_ID_ARG \$TRIM_ARG --readext $readext --forward $forward --reverse $reverse --ref_readext $readext --ref_forward $forward --ref_reverse $reverse --min_cov $min_cov --min_iden $min_iden --min_len $min_len --ref_edge $ref_edge --query_edge $query_edge --dwin $dwin --wsnps $wsnps --out \$CSP2_DIR/CSP2_Screen_Output > Nextflow_Log.txt 2>&1;
+
+            
 ]]>
         </command>
         <inputs>
