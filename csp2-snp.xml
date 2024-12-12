@@ -7,45 +7,50 @@
         <version_command>nextflow -version</version_command>
         <command detect_errors="aggressive"><![CDATA[
 mkdir -p queries references
-
+#set readext=""
 #for $reads in $query.coll
-#if $reads.is_of_type("fasta")
-         && ln -sf ${reads} queries/${reads.element_identifier}.fasta
+#if $hasattr($reads, "is_of_type") and $reads.is_of_type("fasta")
+         && ln -sf '${reads}' 'queries/${reads.element_identifier}.fasta'
 #else if $reads.forward.is_of_type("fastq.gz","fastqsanger.gz")
-        #set readext="fastq.gz"
-         && ln -sf ${reads.forward} queries/${reads.forward.element_identifier}_1.fastq.gz
-         && ln -sf ${reads.reverse} queries/${reads.reverse.element_identifier}_2.fastq.gz
+         #set readext="fastq.gz"
+         && ln -sf '${reads.forward}' 'queries/${reads.forward.element_identifier}_1.fastq.gz'
+         && ln -sf '${reads.reverse}' 'queries/${reads.reverse.element_identifier}_2.fastq.gz'
 #else if $reads.forward.is_of_type("fastq.bz2", "fastqsanger.bz2")
-        #set readext="fastq.bz2"
-         && ln -sf ${reads.forward} queries/${reads.forward.element_identifier}_1.fastq.bz2
-         && ln -sf ${reads.reverse} queries/${reads.reverse.element_identifier}_2.fastq.bz2
+         #set readext="fastq.bz2"
+         && ln -sf '${reads.forward}' 'queries/${reads.forward.element_identifier}_1.fastq.bz2'
+         && ln -sf '${reads.reverse}' 'queries/${reads.reverse.element_identifier}_2.fastq.bz2'
 #else 
-        #set readext="fastq"
-         && ln -sf ${reads.forward} queries/${reads.forward.element_identifier}_1.fastq
-         && ln -sf ${reads.reverse} queries/${reads.reverse.element_identifier}_2.fastq
+         #set readext="fastq"
+         && ln -sf '${reads.forward}' 'queries/${reads.forward.element_identifier}_1.fastq'
+         && ln -sf '${reads.reverse}' 'queries/${reads.reverse.element_identifier}_2.fastq'
 #end if
 #end for
-
+        && echo "*** Files in queries directory: ***"
+        && ln -sf '$source.reference' 'references/${source.reference.element_identifier}.fasta'
         && nextflow run 
         ${__tool_directory__}/CSP2/CSP2.nf -profile csp2_galaxy 
         --runmode snp 
         #if $query.query_select == 'reads'
         --reads queries
         --readext $readext 
-        --forward "_1.fastq"
-        --reverse "_2.fastq"
+        --forward "_1.${readext}"
+        --reverse "_2.${readext}"
         #else
         --fasta queries
         #end if
-        --ref_fasta $source.reference
-        --min_cov $min_cov 
-        --min_iden $min_iden 
-        --min_len $min_len 
-        --ref_edge $ref_edge 
-        --query_edge $query_edge 
-        --dwin $dwin 
-        --wsnps $wsnps 
-        --out CSP2_Screen_Output
+        --ref_fasta 'references/${source.reference.element_identifier}.fasta'
+        --min_cov $opt.min_cov 
+        --min_iden $opt.min_iden 
+        --min_len $opt.min_len 
+        --ref_edge $opt.ref_edge 
+        --query_edge $opt.query_edge 
+        --dwin $opt.dwin 
+        --wsnps $opt.wsnps 
+        --out CSP2_SNP_Output
+        && echo "*** Files in output directory: ***"
+        && ls -lah CSP2_SNP_Output
+        && echo "*** Nextflow log follows: ***"
+        && cat .nextflow.log
 ]]>
         </command>
         <inputs>
@@ -78,7 +83,7 @@ mkdir -p queries references
                                 <param label="Assemblies" name="coll" type="data_collection" format="fasta" collection_type="list" />
                         </when>
                 </conditional>
-                <section name="Advanced options...">
+                <section name="opt" title="Advanced options...">
                         <param name="min_cov" type="float" value="85" label="Minimum reference genome coverage to proceed with distance estimation" optional="true" />
                         <param name="min_iden" type="float" value="99" label="Minimum alignment percent identity to detect SNPs" optional="true" />
                         <param name="min_len" type="integer" value="500" label="Minimum alignment length to detect SNPs" optional="true" />
@@ -126,6 +131,23 @@ mkdir -p queries references
                                 </collection>
                         </param>
 
+                        <output name="isolate_data" value="Isolate_Data.tsv" />
+                </test>
+                <test>
+                        <param name="source_select" value="history" />
+                        <param name="reference" value="assemblies/Sample_A.fasta" ftype="fasta" />
+                        <param name="query_select" value="reads" />
+                        <param name="coll">
+                                <collection type="list:paired">
+                                        <element name="Sample_A">
+                                                <collection type="paired">
+                                                        <element name="forward" value="reads/Week_42_Reads_1.fq.gz" ftype="fastqsanger.gz" />
+                                                        <element name="reverse" value="reads/Week_42_Reads_2.fq.gz" ftype="fastqsanger.gz" />
+                                                </collection>
+                                        </element>
+                                </collection>
+                        </param>
+                        <output name="screening_results" value="Screening_Results.tsv" />
                         <output name="isolate_data" value="Isolate_Data.tsv" />
                 </test>
         </tests>
